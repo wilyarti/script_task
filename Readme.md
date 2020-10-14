@@ -5,8 +5,12 @@ User Uploader is a simple PHP script for uploading users from a CSV file into a 
 ## Getting Started
 
 In order for this script to work your CSV file will have to be in the following format:
+
+```
 name,surname,email	
 joe, blogs, joe@mail.com
+```
+
 This first line of the CSV file will be ignored and should not contain data other than column names.
 
 You will also need a computer capable of running PHP (such as Linux, *BSD or Mac).
@@ -15,10 +19,13 @@ You will also need a computer capable of running PHP (such as Linux, *BSD or Mac
 This software requires PHP > 7.2.x and MySQL > 5.7.
 
 ### Installing
-To install simply copy into a directory that is in your path (~/bin) and run:
+To install simply copy the file into a directory that is in your path (~/bin) and run:
 > user_upload.php
 
-Or alternatively run from a directory like so:
+You will need to make the file executable if you want to run it directly.
+> chmod +x user_upload.php
+
+Alternatively run using your PHP interpreter:
 > php user_upload.php
 
 You will need to specify the command line directives :

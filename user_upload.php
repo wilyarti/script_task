@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 /*
     Copyright Wilyarti Howard - 2020
@@ -90,11 +91,15 @@ function uploadUsers($username, $password, $host, $database, $table, $file, $DRY
             $email = strtolower($email);
             // Validate e-mail
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                // TODO implement adding function
                 $emailEscaped = $conn->real_escape_string($email);
                 $sql = "INSERT INTO $table " .
                     "(name, surname, email) values ('$name', '$surname', '$emailEscaped')";
+                if ($DRY_RUN) {
+                    $count++;
+                    continue;
+                }
                 if ($conn->query($sql) === TRUE) {
+                    echo " + $email\n";
                     $count++;
                 } else {
                     echo "Error adding $email: " . $conn->error . "\n";
@@ -109,6 +114,9 @@ function uploadUsers($username, $password, $host, $database, $table, $file, $DRY
     }
     $conn->close();
     echo "Added $count emails\n$errCount error(s)\n";
+    if ($DRY_RUN) {
+        echo "Ran in dry run mode. No modifications made to the database.\n";
+    }
     exit();
 }
 

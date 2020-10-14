@@ -5,7 +5,7 @@
 */
 $help = "
 User Upload (c) Wilyarti Howard 2020
-You will need to specify some of the following command line directives :
+You will need to specify the command line directives :
     - --file [csv file name] – this is the name of the CSV to be parsed
     - --create_table – this will cause the MySQL users table to be built (and no further
     - action will be taken)
@@ -15,7 +15,13 @@ You will need to specify some of the following command line directives :
     - -u – MySQL username
     - -p – MySQL password
     - -h – MySQL host
-    - --help – which will output the above list of directives with details.\n";
+    - -h – MySQL database 
+    - -t – MySQL table 
+    - --help – which will output the above list of directives with details.
+    
+For example:
+> php user_upload.php --file users.csv -u admin -p password -h localhost -d users -t userlist
+\n";
 
 /**
  * Program functions
@@ -96,6 +102,8 @@ function uploadUsers($username, $password, $host, $database, $table, $file, $DRY
                     "(name, surname, email) values ('$name', '$surname', '$emailEscaped')";
                 if ($DRY_RUN) {
                     $count++;
+                    echo "DRY_RUN + $email\n";
+
                     continue;
                 }
                 if ($conn->query($sql) === TRUE) {
@@ -113,7 +121,7 @@ function uploadUsers($username, $password, $host, $database, $table, $file, $DRY
         }
     }
     $conn->close();
-    echo "Added $count emails\n$errCount error(s)\n";
+    echo "\nAdded $count emails\n$errCount error(s)\n";
     if ($DRY_RUN) {
         echo "Ran in dry run mode. No modifications made to the database.\n";
     }

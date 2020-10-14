@@ -44,7 +44,7 @@ database won't be altered
 
 For example:
 ```
-php user_upload.php --file users.csv -u admin -p password -h localhost -d users -t userlist
+> php user_upload.php --file users.csv -u admin -p password -h localhost -d users -t userlist
 ```
 
 The program will emit errors to standard output.

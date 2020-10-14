@@ -22,17 +22,52 @@ You will need to specify some of the following command line directives :
      * They are executed based on the command line directives.
      */
     // Create our user table
-    function createTable() {
-        echo "Creating table...\n";
+    function createTable($username, $password, $host, $database, $table, $DRY_RUN) {
+        // Create connection
+        $conn = new mysqli($host, $username, $password);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error . "\n");
+        }
+        // If in dry run mode exit now as connection works
+        if ($DRY_RUN) {
+            echo "Connected to database successfully.\n";
+            exit(0);
+        }
+        // Create database
+        $sql = "CREATE DATABASE IF NOT EXISTS $database";
+        if ($conn->query($sql) === TRUE) {
+            echo "Database created successfully.\n";
+        } else {
+            echo "Error creating database: " . $conn->error . "\n";
+            exit(1);
+        }
+        $conn = new mysqli($host, $username, $password, $database);
+        $sql = "CREATE TABLE IF NOT EXISTS $table" .
+        "(
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            surname VARCHAR(50) NOT NULL,
+            email VARCHAR(50) UNIQUE,
+            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )";
+        if ($conn->query($sql) === TRUE) {
+            echo "Table created successfully.\n";
+        } else {
+            echo "Error creating table: " . $conn->error . "\n";
+            exit(1);
+        }
+        $conn->close();
         exit();
     }
     // Upload user data to table
-    function uploadUsers($username, $password, $host, $file) {
+    function uploadUsers($username, $password, $host, $database, $table, $file, $DRY_RUN) {
         echo "Uploading users\n";
+        exit();
     }
     // Print our help
     function printHelp($help) {
         echo $help;
+        exit();
     }
 
     /**
@@ -42,6 +77,8 @@ You will need to specify some of the following command line directives :
     $username = "";
     $password = "";
     $host = "";
+    $database = "";
+    $table = "";
     $fileName = "";
 
     // Program flags
@@ -55,6 +92,8 @@ You will need to specify some of the following command line directives :
     $optionsText .= "u:";  // MySQL username
     $optionsText .= "p:";  // MySQL password
     $optionsText .= "h:";  // MySQL host
+    $optionsText .= "d:";  // MySQL database name
+    $optionsText .= "t:";  // MySQL table name
 
     $longOptionsText  = array(
         "file:",    // File to be processed
@@ -71,29 +110,42 @@ You will need to specify some of the following command line directives :
     if (isset($options['help'])) {
         printHelp($help);
     }
-    if (isset($options['create_table'])) {
-        createTable();
-    }
     // Dry run flag
     if (isset($options['dry_run'])) {
         $DRY_RUN = true;
     }
     // Run through our directives to make sure there are no
     // missing directives or missing files
-    if (isset($options['u']) && isset($options['p']) && isset($options['h']) && isset($options['file']) ) {
+    if (isset($options['u']) &&
+        isset($options['p']) &&
+        isset($options['h']) &&
+        isset($options['d']) &&
+        isset($options['t'])) {
         // Store our variables
         $username = $options['u'];
         $password = $options['p'];
         $host = $options['h'];
-        $fileName = $options['file'];
-        // Check if file can be opened, exit if unable
-        $file = fopen($fileName, 'r')
-        or exit(1);
+        $database = $options['d'];
+        $table = $options['t'];
 
-        uploadUsers($username, $password, $host, $file);
-
+        // Are we just setting up the table?
+        if (isset($options['create_table'])) {
+            createTable($username, $password, $host, $database, $table, $DRY_RUN);
+        }
+        // Run through our user import
+        if (isset($options['file'])) {
+            $fileName = $options['file'];
+            // Check if file can be opened, exit if unable
+            $file = fopen($fileName, 'r')
+            or exit(1);
+            uploadUsers($username, $password, $host, $database, $table, $file, $DRY_RUN);
+        } else {
+            echo "ERROR: Please make sure file values are set (ie):
+    user_upload.php -u user -p password -h localhost --file ourusers.csv\n";
+            exit(1);
+        }
     } else {
-        echo "ERROR: Please make sure user, password and hostname values are set (ie):
+        echo "ERROR: Please make sure user, password, hostname and database name values are set (ie):
         user_upload.php -u user -p password -h localhost --file ourusers.csv\n";
         exit(1);
     }

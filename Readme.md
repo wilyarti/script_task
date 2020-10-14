@@ -29,11 +29,13 @@ database won't be altered
 - -u – MySQL username
 - -p – MySQL password
 - -h – MySQL host
+- -h – MySQL database 
+- -t – MySQL table 
 - --help – which will output the above list of directives with details.
 
 For example:
 ```
-php user_upload.php --file users.csv -u admin -p password -h localhost
+php user_upload.php --file users.csv -u admin -p password -h localhost -d users -t userlist
 ```
 
 The program will emit errors to standard output.

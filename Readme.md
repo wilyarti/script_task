@@ -6,6 +6,8 @@ User Uploader is a simple PHP script for uploading users from a CSV file into a 
 
 In order for this script to work your CSV file will have to be in the following format:
 name,surname,email	
+joe, blogs, joe@mail.com
+This first line of the CSV file will be ignored and should not contain data other than column names.
 
 You will also need a computer capable of running PHP (such as Linux, *BSD or Mac).
 ### Prerequisites

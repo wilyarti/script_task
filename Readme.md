@@ -3,7 +3,7 @@
 
 User Uploader is a simple PHP script for uploading users from a CSV file into a database.
 
-This script performs basic text processing on the user's names and checks if the email is valid.
+This script performs basic text processing on the user's names and checks if the email is a valid format.
 
 The database name, table, host, username and password are configurable on the command line.
 
@@ -64,9 +64,8 @@ The program will emit errors to standard output.
 Earlier versions of the PHP MySQLi plugin do not support "caching_sha2_password". 
 
 To overcome this either change the authentication method in your MySQL configuration file or add 
-as user with native password authentication.
+a user with native password authentication.
 > CREATE USER 'nativeuser'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
-
 
 ## Built With
 

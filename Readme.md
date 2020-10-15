@@ -1,4 +1,5 @@
 # User Uploader
+ [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 User Uploader is a simple PHP script for uploading users from a CSV file into a database.
 
@@ -21,7 +22,10 @@ You will also need a computer capable of running PHP (such as Linux, *BSD or Mac
 
 ### Prerequisites
 
-This software requires PHP > 7.2.x and MySQL > 5.7. There are no other dependencies.
+This software requires PHP > 7.2.x and MySQL > 5.7. You will also need to install PHP MySQLi.
+
+On Ubuntu you can install it using the following command:
+> sudo apt install php-mysql
 
 ### Installing
 To install simply copy the file into a directory that is in your path (~/bin) and run:
@@ -56,6 +60,14 @@ For example:
 
 The program will emit errors to standard output.
 
+## Issues
+Earlier versions of the PHP MySQLi plugin do not support "caching_sha2_password". 
+
+To overcome this either change the authentication method in your MySQL configuration file or add 
+as user with native password authentication.
+> CREATE USER 'nativeuser'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+
 ## Built With
 
 * [PHP](https://php.net) - general purpose programming language
@@ -75,5 +87,5 @@ I use [GitHub](https://github.com/) for versioning.
 
 ## License
 
-This project is licensed under the BSD License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the BSD License - see the [License.md](License.md) file for details
 

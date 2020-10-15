@@ -34,7 +34,8 @@ function createTable($username, $password, $host, $database, $table, $DRY_RUN)
     // Create connection
     $conn = new mysqli($host, $username, $password);
     if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error . "\n");
+        echo "Connection failed: " . $conn->connect_error . "\n";
+        exit(1);
     }
     // If in dry run mode exit now as connection works
     if ($DRY_RUN) {
@@ -44,13 +45,17 @@ function createTable($username, $password, $host, $database, $table, $DRY_RUN)
     // Create database
     $sql = "CREATE DATABASE IF NOT EXISTS $database";
     if ($conn->query($sql) === TRUE) {
-        echo "Database created successfully.\n";
+        echo "Database '$database' created successfully or it already exists.\n";
     } else {
         echo "Error creating database: " . $conn->error . "\n";
         exit(1);
     }
     $conn->close();
     $conn = new mysqli($host, $username, $password, $database);
+    if ($conn->connect_error) {
+        echo "Connection failed: " . $conn->connect_error . "\n";
+        exit(1);
+    }
     $sql = "CREATE TABLE IF NOT EXISTS $table" .
         "(
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +65,7 @@ function createTable($username, $password, $host, $database, $table, $DRY_RUN)
             created TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )";
     if ($conn->query($sql) === TRUE) {
-        echo "Table created successfully.\n";
+        echo "Table '$table' created successfully or it already exists.\n";
     } else {
         echo "Error creating table: " . $conn->error . "\n";
         exit(1);
@@ -72,13 +77,18 @@ function createTable($username, $password, $host, $database, $table, $DRY_RUN)
 // Upload user data to table
 function uploadUsers($username, $password, $host, $database, $table, $file, $DRY_RUN)
 {
-    // Regex pattern
+    // Regex pattern for removing illegal characters in text
     $pattern = "/[^\wàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð,.\'-]/";
 
     // MySQL connection
     $conn = new mysqli($host, $username, $password, $database);
+    if ($conn->connect_error) {
+        echo "Connection failed: " . $conn->connect_error . "\n";
+        exit(1);
+    }
     // Ignore first line
     fgets($file);
+    // email and error counters
     $errCount = 0;
     $count = 0;
     while (!feof($file)) {
@@ -103,7 +113,6 @@ function uploadUsers($username, $password, $host, $database, $table, $file, $DRY
                 if ($DRY_RUN) {
                     $count++;
                     echo "DRY_RUN + $email\n";
-
                     continue;
                 }
                 if ($conn->query($sql) === TRUE) {
@@ -117,11 +126,10 @@ function uploadUsers($username, $password, $host, $database, $table, $file, $DRY
                 echo("Invalid email, skipping '$email'\n");
                 $errCount++;
             }
-            // Remove incorrect characters from names.
         }
     }
     $conn->close();
-    echo "\nAdded $count emails\n$errCount error(s)\n";
+    echo "\nAdded $count email(s)\n$errCount error(s)\n";
     if ($DRY_RUN) {
         echo "Ran in dry run mode. No modifications made to the database.\n";
     }
@@ -206,11 +214,11 @@ if (isset($options['u']) &&
         uploadUsers($username, $password, $host, $database, $table, $file, $DRY_RUN);
     } else {
         echo "ERROR: Please make sure file values are set (ie):
-    user_upload.php -u user -p password -h localhost --file ourusers.csv\n";
+    user_upload.php -u user -p password -h localhost -d database -t table --file ourusers.csv\n";
         exit(1);
     }
 } else {
     echo "ERROR: Please make sure user, password, hostname and database name values are set (ie):
-        user_upload.php -u user -p password -h localhost --file ourusers.csv\n";
+        user_upload.php -u user -p password -h localhost -d database -t table --file ourusers.csv\n";
     exit(1);
 }
